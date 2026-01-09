@@ -4,11 +4,14 @@ from datetime import datetime, timezone
 
 from dotenv import load_dotenv
 
+from portfolio.builder import PortfolioBuilder
 from scheduler.scheduler import start_scheduler
 from services.backfill import CandleBackfillService
 from services.google_sheets import GoogleSheetsService
 from services.moex import MoexService
+from services.portfolio_snapshot import PortfolioSnapshotService
 from storage.candle_storage import CandleStorage
+from storage.portfolio_snapshot_storage import PortfolioSnapshotStorage
 from storage.security_storage import SecurityStorage
 from storage.session import SessionLocal, init_db
 
@@ -27,6 +30,7 @@ def main():
 
     session = SessionLocal()
 
+    candle_storage = CandleStorage(session)
     backfill_service = CandleBackfillService(
         moex=MoexService(),
         candle_storage=CandleStorage(session),
@@ -35,7 +39,22 @@ def main():
         default_start=datetime(2025, 1, 1, tzinfo=timezone.utc),
     )
 
-    start_scheduler(backfill_service, TICKERS)
+    sheets = GoogleSheetsService(
+        credentials_path=CREDENTIALS_PATH,
+        spreadsheet_id=GOOGLE_SPREADSHEET_ID,
+    )
+
+    builder = PortfolioBuilder(candle_storage)
+    snapshot_storage = PortfolioSnapshotStorage(session)
+    snapshot_service = PortfolioSnapshotService(
+        sheets=sheets, builder=builder, storage=snapshot_storage
+    )
+
+    start_scheduler(
+        backfill_service=backfill_service,
+        snapshot_service=snapshot_service,
+        tickers=TICKERS,
+    )
 
 
 if __name__ == "__main__":
