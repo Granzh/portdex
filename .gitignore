@@ -1,0 +1,12 @@
+#python
+.idea
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.env
+.venv/
+
+# Google credentials
+credentials.json
+.credentials.json
