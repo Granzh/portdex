@@ -11,3 +11,4 @@ class CandleDTO(BaseModel):
     low: float
     close: float
     volume: int
+    interval: int

@@ -1,5 +1,4 @@
-from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, String
-from sqlalchemy.orm import Column, Mapped, mapped_column
+from sqlalchemy import BigInteger, Column, DateTime, Float, ForeignKey, Integer, String
 
 from .base import Base
 
@@ -25,7 +24,7 @@ class Candle(Base):
     high = Column(Float)
     low = Column(Float)
     close = Column(Float)
-    volume = Column(Integer)
+    volume = Column(BigInteger)
 
 
 class PortfolioSnapshot(Base):
