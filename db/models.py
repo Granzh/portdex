@@ -1,4 +1,13 @@
-from sqlalchemy import BigInteger, Column, DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy import (
+    BigInteger,
+    Column,
+    DateTime,
+    Float,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+)
 
 from .base import Base
 
@@ -25,6 +34,8 @@ class Candle(Base):
     low = Column(Float)
     close = Column(Float)
     volume = Column(BigInteger)
+
+    __table_args__ = (Index("ix_candles_ticker_datetime", "ticker", "datetime"),)
 
 
 class PortfolioSnapshot(Base):

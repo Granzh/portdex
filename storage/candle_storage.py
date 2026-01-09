@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy import desc, select
 from sqlalchemy.dialects.sqlite import insert
 from sqlalchemy.orm import Session
@@ -45,6 +47,15 @@ class CandleStorage:
             .where(Candle.ticker == ticker, Candle.interval == interval)
             .order_by(desc(Candle.datetime))
             .limit(1)
+        )
+
+        result = self.session.execute(stmt).scalar_one_or_none()
+        return result
+
+    def get_candle(self, *, ticker: str, at: datetime):
+        stmt = select(Candle).where(
+            Candle.ticker == ticker,
+            Candle.datetime == at,
         )
 
         result = self.session.execute(stmt).scalar_one_or_none()
