@@ -8,9 +8,12 @@ from portfolio.builder import PortfolioBuilder
 from scheduler.scheduler import start_scheduler
 from services.backfill import CandleBackfillService
 from services.google_sheets import GoogleSheetsService
+from services.index import IndexService
 from services.moex import MoexService
 from services.portfolio_snapshot import PortfolioSnapshotService
 from storage.candle_storage import CandleStorage
+from storage.index_storage import IndexStorage
+from storage.portfolio_index_storage import PortfolioIndexStorage
 from storage.portfolio_snapshot_storage import PortfolioSnapshotStorage
 from storage.security_storage import SecurityStorage
 from storage.session import SessionLocal, init_db
@@ -50,9 +53,17 @@ def main():
         sheets=sheets, builder=builder, storage=snapshot_storage
     )
 
+    index_storage = PortfolioIndexStorage(session)
+
+    index_service = IndexService(
+        snapshot_storage=snapshot_storage,
+        index_storage=index_storage,
+    )
+
     start_scheduler(
         backfill_service=backfill_service,
         snapshot_service=snapshot_service,
+        index_service=index_service,
         tickers=TICKERS,
     )
 

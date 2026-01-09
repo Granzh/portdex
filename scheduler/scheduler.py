@@ -3,12 +3,18 @@ import logging
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
 
-from scheduler.jobs import hourly_candle_update, portfolio_snapshot_job
+from scheduler.jobs import (
+    hourly_candle_update,
+    portfolio_index_job,
+    portfolio_snapshot_job,
+)
 
 logger = logging.getLogger(__name__)
 
 
-def start_scheduler(backfill_service, snapshot_service, tickers: list[str]):
+def start_scheduler(
+    backfill_service, snapshot_service, index_service, tickers: list[str]
+):
     scheduler = BlockingScheduler()
 
     # candles
@@ -28,6 +34,17 @@ def start_scheduler(backfill_service, snapshot_service, tickers: list[str]):
         trigger=CronTrigger(minute=10),
         kwargs={"snapshot_service": snapshot_service},
         id="portfolio_snapshot",
+        replace_existing=True,
+        max_instances=1,
+        coalesce=True,
+    )
+
+    # portfolio index
+    job = scheduler.add_job(
+        func=portfolio_index_job,
+        trigger=CronTrigger(minute=12),
+        kwargs={"index_service": index_service, "snapshot_storage": snapshot_service},
+        id="portfolio_index",
         replace_existing=True,
         max_instances=1,
         coalesce=True,

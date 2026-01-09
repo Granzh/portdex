@@ -22,3 +22,17 @@ def portfolio_snapshot_job(snapshot_service):
         logger.info("Portfolio snapshot saved at %s", at)
     else:
         logger.error("Portfolio snapshot already exists at %s", at)
+
+
+def portfolio_index_job(index_service, snapshot_storage):
+    logger.info("Starting portofolio index job")
+
+    snapshot = snapshot_storage.get_last()
+
+    if not snapshot:
+        return
+
+    saved = index_service.calculate_and_save(snapshot)
+
+    if saved:
+        logger.info("Index calculated for %s", snapshot.datetime)
