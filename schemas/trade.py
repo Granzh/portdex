@@ -1,13 +1,18 @@
-from datetime import datetime
-from typing import Literal
+from datetime import date
+from enum import Enum
 
 from pydantic import BaseModel
 
 
+class OperationType(str, Enum):
+    BUY = "BUY"
+    SELL = "SELL"
+
+
 class Trade(BaseModel):
     ticker: str
-    datetime: datetime
+    date: date
     price: float
     quantity: int
-    fee: float
-    side: Literal["BUY", "SELL"]
+    fee: float = 0.0
+    operation: OperationType
