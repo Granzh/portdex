@@ -15,5 +15,7 @@ credentials.json
 coverage.xml
 htmlcov/
 
+# db
+sqlite3
 
 .mypy_cache/

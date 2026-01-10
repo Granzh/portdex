@@ -41,16 +41,12 @@ class IndexService:
 
         return self.index_storage.save(index)
 
-    def backfill(self):
-        """Backfills the portfolio index"""
+    def calculate(self, snapshot, base_snapshot):
+        if base_snapshot.total_value == 0:
+            raise ValueError("Base snapshot total value cannot be zero")
+        return (snapshot.total_value / base_snapshot.total_value) * self.base
 
-        snapshots = self.snapshot_storage.get_all_ordered()
+    def save(self, snapshot, index_value):
+        index = PortfolioIndex(datetime=snapshot.datetime, index_value=index_value)
 
-        base_snapshot = snapshots[0]
-
-        for snapshot in snapshots:
-            index_value = (snapshot.total_value / base_snapshot.total_value) * self.base
-
-            index = PortfolioIndex(datetime=snapshot.datetime, index_value=index_value)
-
-            self.index_storage.save(index)
+        return self.index_storage.save(index)

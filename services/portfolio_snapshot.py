@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 from portfolio.builder import PortfolioBuilder
+from schemas.trade import Trade
 from services.google_sheets import GoogleSheetsService
 from storage.portfolio_snapshot_storage import PortfolioSnapshotStorage
 
@@ -18,11 +19,14 @@ class PortfolioSnapshotService:
         self.builder = builder
         self.storage = storage
 
-    def take_snapshot(self, at: datetime | None = None) -> bool:
+    def take_snapshot(
+        self, at: datetime | None = None, trades: list[Trade] | None = None
+    ) -> bool:
         """Takes a portfolio snapshot"""
 
         if at is None:
             at = datetime.now(timezone.utc)
-        trades = self.sheets.fetch_trades()
+        if trades is None:
+            trades = self.sheets.fetch_trades()
         snapshot = self.builder.snapshot(trades, at)
         return self.storage.save(snapshot)

@@ -29,3 +29,7 @@ class PortfolioIndexStorage:
             .order_by(PortfolioIndex.datetime.asc())
             .all()
         )
+
+    def delete_all(self):
+        self.session.query(PortfolioIndex).delete()
+        self.session.commit()

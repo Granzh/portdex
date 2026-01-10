@@ -44,14 +44,10 @@ def portfolio_index_job(
     logger.info("Starting portofolio index job")
 
     snapshot = snapshot_storage.get_last()
+    base_snapshot = snapshot_storage.get_first()
 
-    if not snapshot:
-        return
-
-    saved = index_service.calculate_and_save(snapshot)
-
-    if saved:
-        logger.info("Index calculated for %s", snapshot.datetime)
+    index_value = index_service.calculate(snapshot, base_snapshot)
+    index_service.save(snapshot, index_value)
 
 
 def export_index_to_sheets_job(export_service: IndexExportService) -> None:
