@@ -1,3 +1,4 @@
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from db.models import PortfolioSnapshot
@@ -27,11 +28,14 @@ class PortfolioSnapshotStorage:
         """
         Retrieves the first portfolio snapshot.
         """
-        return (
-            self.session.query(PortfolioSnapshot)
-            .order_by(PortfolioSnapshot.datetime.asc())
-            .first()
+
+        stmt = (
+            select(PortfolioSnapshot)
+            .where(PortfolioSnapshot.total_value > 0)
+            .order_by(PortfolioSnapshot.datetime)
+            .limit(1)
         )
+        return self.session.execute(stmt).scalar_one_or_none()
 
     def get_last(self) -> PortfolioSnapshot | None:
         """

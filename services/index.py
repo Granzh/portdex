@@ -1,6 +1,10 @@
+import logging
+
 from db.models import PortfolioIndex
 from storage.portfolio_index_storage import PortfolioIndexStorage
 from storage.portfolio_snapshot_storage import PortfolioSnapshotStorage
+
+logger = logging.getLogger(__name__)
 
 
 class IndexService:
@@ -23,15 +27,15 @@ class IndexService:
 
     def calculate_and_save(self, snapshot):
         """Calculates and saves the portfolio index"""
+        logger.info("Calculating index for snapshot at %s", snapshot.datetime)
 
         base_snapshot = self._get_base_snapshot()
 
         if base_snapshot is None:
-            return False
-        if base_snapshot.total_value == 0:
-            return False
-
-        index_value = (snapshot.total_value / base_snapshot.total_value) * self.base
+            logger.info("Initializing base index")
+            index_value = self.base
+        else:
+            index_value = (snapshot.total_value / base_snapshot.total_value) * self.base
 
         index = PortfolioIndex(datetime=snapshot.datetime, index_value=index_value)
 

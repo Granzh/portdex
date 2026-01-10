@@ -4,23 +4,36 @@ from datetime import datetime, timezone
 
 from dotenv import load_dotenv
 
+import storage.session as db_session
 from portfolio.builder import PortfolioBuilder
 from scheduler.scheduler import start_scheduler
 from services.backfill import CandleBackfillService
 from services.google_sheets import GoogleSheetsService
 from services.index import IndexService
+from services.index_export import IndexExportService
 from services.moex import MoexService
 from services.portfolio_snapshot import PortfolioSnapshotService
 from storage.candle_storage import CandleStorage
-from storage.index_storage import IndexStorage
 from storage.portfolio_index_storage import PortfolioIndexStorage
 from storage.portfolio_snapshot_storage import PortfolioSnapshotStorage
 from storage.security_storage import SecurityStorage
-from storage.session import SessionLocal, init_db
 
 logging.basicConfig(level=logging.INFO)
 
-TICKERS = ["SBER", "GAZP", "LKOH"]
+TICKERS = [
+    "SBER",
+    "GAZP",
+    "LKOH",
+    "ROSN",
+    "AFKS",
+    "MDMG",
+    "TRNFP",
+    "YDEX",
+    "PLZL",
+    "DOMRF",
+    "TATN",
+    "PHOR",
+]
 
 load_dotenv()
 
@@ -29,9 +42,9 @@ GOOGLE_SPREADSHEET_ID = os.getenv("GOOGLE_SPREADSHEET_ID")
 
 
 def main():
-    init_db()
+    db_session.init_db()
 
-    session = SessionLocal()
+    session = db_session.SessionLocal()
 
     candle_storage = CandleStorage(session)
     backfill_service = CandleBackfillService(
@@ -60,9 +73,16 @@ def main():
         index_storage=index_storage,
     )
 
+    index_export_service = IndexExportService(
+        index_storage=index_storage,
+        sheets=sheets,
+    )
+
     start_scheduler(
         backfill_service=backfill_service,
         snapshot_service=snapshot_service,
+        snapshot_storage=snapshot_storage,
+        index_export_service=index_export_service,
         index_service=index_service,
         tickers=TICKERS,
     )

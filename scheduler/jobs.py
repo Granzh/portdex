@@ -2,6 +2,10 @@ import logging
 from datetime import datetime, timezone
 
 from services.backfill import CandleBackfillService
+from services.index import IndexService
+from services.index_export import IndexExportService
+from services.portfolio_snapshot import PortfolioSnapshotService
+from storage.portfolio_snapshot_storage import PortfolioSnapshotStorage
 
 logger = logging.getLogger(__name__)
 
@@ -20,12 +24,12 @@ def hourly_candle_update(
     logger.info("Hourly candle update finished")
 
 
-def portfolio_snapshot_job(snapshot_service) -> None:
+def portfolio_snapshot_job(snapshot_service: PortfolioSnapshotService) -> None:
     """Saves a portfolio snapshot"""
     logger.info("Starting portfolio snapshot job")
     at = datetime.now(timezone.utc)
 
-    saved = snapshot_service.save_snapshot(at)
+    saved = snapshot_service.take_snapshot(at)
 
     if saved:
         logger.info("Portfolio snapshot saved at %s", at)
@@ -33,7 +37,9 @@ def portfolio_snapshot_job(snapshot_service) -> None:
         logger.error("Portfolio snapshot already exists at %s", at)
 
 
-def portfolio_index_job(index_service, snapshot_storage) -> None:
+def portfolio_index_job(
+    index_service: IndexService, snapshot_storage: PortfolioSnapshotStorage
+) -> None:
     """Calculates and saves the portfolio index"""
     logger.info("Starting portofolio index job")
 
@@ -46,3 +52,11 @@ def portfolio_index_job(index_service, snapshot_storage) -> None:
 
     if saved:
         logger.info("Index calculated for %s", snapshot.datetime)
+
+
+def export_index_to_sheets_job(export_service: IndexExportService) -> None:
+    logger.info("Exporting portfolio index to Google Sheets")
+
+    export_service.export_all()
+
+    logger.info("Portfolio index export finished")

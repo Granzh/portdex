@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime, timedelta, timezone
 
+from db.models import Candle
 from services.moex import MoexService
 from storage.candle_storage import CandleStorage
 from storage.security_storage import SecurityStorage
@@ -44,12 +45,26 @@ class CandleBackfillService:
             end_dt,
         )
 
-        candles = self.moex.fetch_candles(
+        dtos = self.moex.fetch_candles(
             ticker=ticker,
             start=start_dt,
             end=end_dt,
             interval=self.interval,
         )
+
+        candles = [
+            Candle(
+                ticker=ticker,
+                datetime=dt.datetime,
+                open=dt.open,
+                high=dt.high,
+                low=dt.low,
+                close=dt.close,
+                volume=dt.volume,
+                interval=self.interval,
+            )
+            for dt in dtos
+        ]
 
         inserted = self.candle_storage.upsert_many(candles)
 

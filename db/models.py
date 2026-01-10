@@ -1,3 +1,5 @@
+from datetime import datetime as dt
+
 from sqlalchemy import (
     BigInteger,
     Column,
@@ -8,6 +10,8 @@ from sqlalchemy import (
     Integer,
     String,
 )
+from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm.base import Mapped
 
 from .base import Base
 
@@ -33,10 +37,10 @@ class Candle(Base):
     # интервал сканирования, в минутах
     interval = Column(Integer, primary_key=True)
 
-    open = Column(Float)
-    high = Column(Float)
-    low = Column(Float)
-    close = Column(Float)
+    open: Mapped[float] = mapped_column(Float)
+    high: Mapped[float] = mapped_column(Float)
+    low: Mapped[float] = mapped_column(Float)
+    close: Mapped[float] = mapped_column(Float)
     volume = Column(BigInteger)
 
     __table_args__ = (Index("ix_candles_ticker_datetime", "ticker", "datetime"),)
@@ -56,5 +60,5 @@ class PortfolioIndex(Base):
 
     __tablename__ = "portfolio_index"
 
-    datetime = Column(DateTime, primary_key=True)
-    index_value = Column(Float)
+    datetime: Mapped[dt] = mapped_column(DateTime, primary_key=True)
+    index_value: Mapped[float] = mapped_column(Float)

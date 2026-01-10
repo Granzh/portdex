@@ -1,9 +1,12 @@
+import logging
 from datetime import datetime
 
 from db.models import PortfolioSnapshot
 from portfolio.portfolio import Portfolio
 from schemas.trade import Trade
 from storage.candle_storage import CandleStorage
+
+logger = logging.getLogger(__name__)
 
 
 class PortfolioBuilder:
@@ -38,8 +41,9 @@ class PortfolioBuilder:
             if pos.quantity == 0:
                 continue
 
-            candle = self.candle_storage.get_candle(ticker=pos.ticker, at=at)
+            candle = self.candle_storage.get_last_before(ticker=pos.ticker, at=at)
             if candle is None:
+                logger.warning("No candle for %s at %s", pos.ticker, at)
                 continue
             total += pos.quantity * candle.close
 

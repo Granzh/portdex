@@ -1,4 +1,3 @@
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from db.models import PortfolioIndex
@@ -23,3 +22,10 @@ class PortfolioIndexStorage:
         except Exception:
             self.session.rollback()
             return False
+
+    def get_all_ordered(self) -> list[PortfolioIndex]:
+        return (
+            self.session.query(PortfolioIndex)
+            .order_by(PortfolioIndex.datetime.asc())
+            .all()
+        )

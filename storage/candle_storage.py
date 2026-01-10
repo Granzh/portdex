@@ -5,22 +5,25 @@ from sqlalchemy.dialects.sqlite import insert
 from sqlalchemy.orm import Session
 
 from db.models import Candle
-from schemas.candle import CandleDTO
 
 
 class CandleStorage:
     def __init__(self, session: Session):
         self.session = session
 
-    def upsert_many(self, candles: list[CandleDTO]) -> int:
+    def upsert_many(self, candles: list[Candle], batch_size: int = 100) -> int:
         """
         Upserts multiple candles into the database.
         """
         if not candles:
             return 0
 
-        stmt = insert(Candle).values(
-            [
+        total_inserted = 0
+
+        for i in range(0, len(candles), batch_size):
+            batch = candles[i : i + batch_size]
+
+            rows = [
                 {
                     "ticker": c.ticker,
                     "datetime": c.datetime,
@@ -31,18 +34,20 @@ class CandleStorage:
                     "close": c.close,
                     "volume": c.volume,
                 }
-                for c in candles
+                for c in batch
             ]
-        )
 
-        stmt = stmt.on_conflict_do_nothing(
-            index_elements=["ticker", "datetime", "interval"]
-        )
+            stmt = insert(Candle).values(rows)
+            stmt = stmt.on_conflict_do_nothing(
+                index_elements=["ticker", "datetime", "interval"]
+            )
 
-        result = self.session.execute(stmt)
-        self.session.commit()
+            result = self.session.execute(stmt)
+            self.session.commit()
 
-        return result.rowcount or 0
+            total_inserted += result.rowcount or 0
+
+        return total_inserted
 
     def get_last_datetime(self, *, ticker: str, interval: int) -> datetime | None:
         """
@@ -69,3 +74,14 @@ class CandleStorage:
 
         result = self.session.execute(stmt).scalar_one_or_none()
         return result
+
+    def get_last_before(self, *, ticker: str, at: datetime) -> Candle | None:
+        """Retrieves the latest candle at or before the given datetime"""
+        stmt = (
+            select(Candle)
+            .where(Candle.ticker == ticker, Candle.datetime <= at)
+            .order_by(desc(Candle.datetime))
+            .limit(1)
+        )
+
+        return self.session.execute(stmt).scalar_one_or_none()
