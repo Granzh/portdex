@@ -13,6 +13,9 @@ class CandleStorage:
         self.session = session
 
     def upsert_many(self, candles: list[CandleDTO]) -> int:
+        """
+        Upserts multiple candles into the database.
+        """
         if not candles:
             return 0
 
@@ -41,7 +44,10 @@ class CandleStorage:
 
         return result.rowcount or 0
 
-    def get_last_datetime(self, *, ticker: str, interval: int):
+    def get_last_datetime(self, *, ticker: str, interval: int) -> datetime | None:
+        """
+        Retrieves the last datetime for the given ticker and interval.
+        """
         stmt = (
             select(Candle.datetime)
             .where(Candle.ticker == ticker, Candle.interval == interval)
@@ -52,7 +58,10 @@ class CandleStorage:
         result = self.session.execute(stmt).scalar_one_or_none()
         return result
 
-    def get_candle(self, *, ticker: str, at: datetime):
+    def get_candle(self, *, ticker: str, at: datetime) -> Candle | None:
+        """
+        Retrieves a candle for the given ticker and datetime.
+        """
         stmt = select(Candle).where(
             Candle.ticker == ticker,
             Candle.datetime == at,

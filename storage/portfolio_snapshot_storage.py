@@ -4,10 +4,17 @@ from db.models import PortfolioSnapshot
 
 
 class PortfolioSnapshotStorage:
+    """
+    Provides methods for saving and retrieving portfolio snapshot data.
+    """
+
     def __init__(self, session: Session):
         self.session = session
 
     def save(self, snapshot: PortfolioSnapshot) -> bool:
+        """
+        Saves a portfolio snapshot.
+        """
         self.session.add(snapshot)
         try:
             self.session.commit()
@@ -16,21 +23,30 @@ class PortfolioSnapshotStorage:
             self.session.rollback()
             return False
 
-    def get_first(self):
+    def get_first(self) -> PortfolioSnapshot | None:
+        """
+        Retrieves the first portfolio snapshot.
+        """
         return (
             self.session.query(PortfolioSnapshot)
             .order_by(PortfolioSnapshot.datetime.asc())
             .first()
         )
 
-    def get_last(self):
+    def get_last(self) -> PortfolioSnapshot | None:
+        """
+        Retrieves the last portfolio snapshot.
+        """
         return (
             self.session.query(PortfolioSnapshot)
             .order_by(PortfolioSnapshot.datetime.desc())
             .first()
         )
 
-    def get_all_ordered(self):
+    def get_all_ordered(self) -> list[PortfolioSnapshot]:
+        """
+        Retrieves all portfolio snapshots ordered by datetime.
+        """
         return (
             self.session.query(PortfolioSnapshot)
             .order_by(PortfolioSnapshot.datetime.asc())

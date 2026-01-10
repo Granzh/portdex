@@ -7,6 +7,8 @@ from schemas.candle import CandleDTO
 
 
 class MoexService:
+    """Service for fetching candles from MOEX API"""
+
     BASE_URL = "https://iss.moex.com/iss"
 
     def __init__(self, timeout: float = 10.0):
@@ -15,6 +17,8 @@ class MoexService:
     def fetch_candles(
         self, ticker: str, *, interval: int, start: datetime, end: datetime
     ) -> List[CandleDTO]:
+        """Fetches candles from MOEX API"""
+
         candles: list[CandleDTO] = []
         offset = 0
 
@@ -40,6 +44,8 @@ class MoexService:
         end: datetime,
         offset: int,
     ) -> list[CandleDTO]:
+        """Fetches a page of candles from MOEX API"""
+
         url = (
             f"{self.BASE_URL}/engines/stock/markets/shares/"
             f"boards/TQBR/securities/{ticker}/candles.json"

@@ -9,6 +9,8 @@ logger = logging.getLogger(__name__)
 
 
 class CandleBackfillService:
+    """Service for backfilling candle data"""
+
     def __init__(
         self,
         *,
@@ -25,6 +27,7 @@ class CandleBackfillService:
         self.default_start = default_start
 
     def backfill_ticker(self, ticker: str):
+        """Method for backfilling candle data for a given ticker"""
         self.security_storage.get_or_create(ticker=ticker)
 
         last_dt = self.candle_storage.get_last_datetime(
@@ -57,6 +60,8 @@ class CandleBackfillService:
         )
 
     def backfill_many(self, tickers: list[str]):
+        """Method for backfilling candle data for multiple tickers"""
+
         for ticker in tickers:
             try:
                 self.backfill_ticker(ticker)

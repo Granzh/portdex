@@ -4,6 +4,8 @@ from storage.portfolio_snapshot_storage import PortfolioSnapshotStorage
 
 
 class IndexService:
+    """Service for calculating and saving the portfolio index"""
+
     def __init__(
         self,
         snapshot_storage: PortfolioSnapshotStorage,
@@ -15,9 +17,13 @@ class IndexService:
         self.base = base
 
     def _get_base_snapshot(self):
+        """Fetches the first portfolio snapshot"""
+
         return self.snapshot_storage.get_first()
 
     def calculate_and_save(self, snapshot):
+        """Calculates and saves the portfolio index"""
+
         base_snapshot = self._get_base_snapshot()
 
         if base_snapshot is None:
@@ -32,6 +38,8 @@ class IndexService:
         return self.index_storage.save(index)
 
     def backfill(self):
+        """Backfills the portfolio index"""
+
         snapshots = self.snapshot_storage.get_all_ordered()
 
         base_snapshot = snapshots[0]

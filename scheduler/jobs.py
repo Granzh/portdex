@@ -1,10 +1,18 @@
 import logging
 from datetime import datetime, timezone
 
+from services.backfill import CandleBackfillService
+
 logger = logging.getLogger(__name__)
 
 
-def hourly_candle_update(backfill_service, tickers: list[str]):
+def hourly_candle_update(
+    backfill_service: CandleBackfillService, tickers: list[str]
+) -> None:
+    """
+    Updates hourly candle data for the given tickers.
+    """
+
     logger.info("Starting hourly candle update")
 
     backfill_service.backfill_many(tickers)
@@ -12,7 +20,8 @@ def hourly_candle_update(backfill_service, tickers: list[str]):
     logger.info("Hourly candle update finished")
 
 
-def portfolio_snapshot_job(snapshot_service):
+def portfolio_snapshot_job(snapshot_service) -> None:
+    """Saves a portfolio snapshot"""
     logger.info("Starting portfolio snapshot job")
     at = datetime.now(timezone.utc)
 
@@ -24,7 +33,8 @@ def portfolio_snapshot_job(snapshot_service):
         logger.error("Portfolio snapshot already exists at %s", at)
 
 
-def portfolio_index_job(index_service, snapshot_storage):
+def portfolio_index_job(index_service, snapshot_storage) -> None:
+    """Calculates and saves the portfolio index"""
     logger.info("Starting portofolio index job")
 
     snapshot = snapshot_storage.get_last()

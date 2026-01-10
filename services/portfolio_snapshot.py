@@ -6,6 +6,8 @@ from storage.portfolio_snapshot_storage import PortfolioSnapshotStorage
 
 
 class PortfolioSnapshotService:
+    """Service for taking portfolio snapshots"""
+
     def __init__(
         self,
         sheets: GoogleSheetsService,
@@ -17,6 +19,8 @@ class PortfolioSnapshotService:
         self.storage = storage
 
     def take_snapshot(self, at: datetime | None = None) -> bool:
+        """Takes a portfolio snapshot"""
+
         if at is None:
             at = datetime.now(timezone.utc)
         trades = self.sheets.fetch_trades()

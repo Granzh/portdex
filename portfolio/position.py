@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 @dataclass
 class Position:
-    """Позиция по одному тикеру"""
+    """Represents a position in a portfolio for a single ticker"""
 
     ticker: str
     quantity: int

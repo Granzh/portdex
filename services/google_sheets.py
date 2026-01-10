@@ -5,6 +5,8 @@ from schemas.trade import Trade
 
 
 class GoogleSheetsService:
+    """Service for interacting with Google Sheets"""
+
     def __init__(self, credentials_path: str, spreadsheet_id: str):
         scopes = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
 
@@ -14,6 +16,8 @@ class GoogleSheetsService:
         self.sheet = self.client.open_by_key(spreadsheet_id)
 
     def fetch_trades(self, worksheet_name: str = "Trades") -> list[Trade]:
+        """Fetches trades from a Google Sheets worksheet"""
+
         ws = self.sheet.worksheet(worksheet_name)
 
         rows = ws.get_all_records()

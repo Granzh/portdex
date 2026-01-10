@@ -13,6 +13,8 @@ from .base import Base
 
 
 class Security(Base):
+    """Security data model"""
+
     __tablename__ = "securities"
 
     ticker = Column(String, primary_key=True)
@@ -22,6 +24,8 @@ class Security(Base):
 
 
 class Candle(Base):
+    """Candle data model"""
+
     __tablename__ = "candles"
 
     ticker = Column(ForeignKey("securities.ticker"), primary_key=True)
@@ -39,6 +43,8 @@ class Candle(Base):
 
 
 class PortfolioSnapshot(Base):
+    """Portfolio snapshot data model"""
+
     __tablename__ = "portfolio_snapshots"
 
     datetime = Column(DateTime, primary_key=True)
@@ -46,6 +52,8 @@ class PortfolioSnapshot(Base):
 
 
 class PortfolioIndex(Base):
+    """Portfolio index data model"""
+
     __tablename__ = "portfolio_index"
 
     datetime = Column(DateTime, primary_key=True)

@@ -14,7 +14,9 @@ logger = logging.getLogger(__name__)
 
 def start_scheduler(
     backfill_service, snapshot_service, index_service, tickers: list[str]
-):
+) -> None:
+    """Starts the scheduler"""
+
     scheduler = BlockingScheduler()
 
     # candles

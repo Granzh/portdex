@@ -2,13 +2,17 @@ from portfolio.position import Position
 
 
 class Portfolio:
-    """Состояние портфеля"""
+    """Represents the state of a portfolio"""
 
     def __init__(self):
         self.positions: dict[str, Position] = {}
         self.cash: float = 0.0
 
     def apply_trade(self, trade):
+        """
+        Applies a trade to the portfolio.
+        """
+
         pos = self.positions.get(trade.ticker)
 
         if not pos:
