@@ -11,8 +11,8 @@ class MoexService:
 
     BASE_URL = "https://iss.moex.com/iss"
 
-    def __init__(self, timeout: float = 10.0):
-        self.client = httpx.Client(timeout=timeout)
+    def __init__(self, client: httpx.Client | None = None, timeout: float = 10.0):
+        self.client = client or httpx.Client(timeout=timeout)
 
     def fetch_candles(
         self, ticker: str, *, interval: int, start: datetime, end: datetime

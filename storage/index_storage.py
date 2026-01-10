@@ -15,5 +15,5 @@ class IndexStorage:
         """
         Saves a portfolio index point.
         """
-        self.session.merge(PortfolioIndex(datetime=datetime, value=value))
+        self.session.merge(PortfolioIndex(datetime=datetime, index_value=value))
         self.session.commit()

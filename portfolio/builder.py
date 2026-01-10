@@ -52,4 +52,4 @@ class PortfolioBuilder:
         portfolio = self.build(trades, at)
         value = self.valuate(portfolio, at)
 
-        return PortfolioSnapshot(portfolio=portfolio, value=value)
+        return PortfolioSnapshot(datetime=at, total_value=value)

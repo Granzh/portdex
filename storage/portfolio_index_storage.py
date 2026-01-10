@@ -20,6 +20,6 @@ class PortfolioIndexStorage:
         try:
             self.session.commit()
             return True
-        except IntegrityError:
+        except Exception:
             self.session.rollback()
             return False

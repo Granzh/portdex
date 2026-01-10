@@ -10,3 +10,7 @@ __pycache__
 # Google credentials
 credentials.json
 .credentials.json
+
+# tests
+coverage.xml
+htmlcov/
