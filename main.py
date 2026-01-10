@@ -52,7 +52,7 @@ def main():
         candle_storage=CandleStorage(session),
         security_storage=SecurityStorage(session),
         interval=60,
-        default_start=datetime(2025, 1, 1, tzinfo=timezone.utc),
+        default_start=datetime(year=2025, month=6, day=1, tzinfo=timezone.utc),
     )
 
     sheets = GoogleSheetsService(
@@ -71,6 +71,7 @@ def main():
     index_service = IndexService(
         snapshot_storage=snapshot_storage,
         index_storage=index_storage,
+        candle_storage=candle_storage,
     )
 
     index_export_service = IndexExportService(
@@ -79,12 +80,12 @@ def main():
     )
 
     start_scheduler(
+        google_sheets=sheets,
         backfill_service=backfill_service,
         snapshot_service=snapshot_service,
         snapshot_storage=snapshot_storage,
         index_export_service=index_export_service,
         index_service=index_service,
-        tickers=TICKERS,
     )
 
 

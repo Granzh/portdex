@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 
-from db.models import PortfolioSnapshot
+from db.models import PortfolioSnapshot, PortfolioSnapshotPosition
 from portfolio.portfolio import Portfolio
 from schemas.trade import Trade
 from storage.candle_storage import CandleStorage
@@ -56,4 +56,12 @@ class PortfolioBuilder:
         portfolio = self.build(trades, at)
         value = self.valuate(portfolio, at)
 
-        return PortfolioSnapshot(datetime=at, total_value=value)
+        snapshot = PortfolioSnapshot(datetime=at, total_value=value)
+
+        snapshot.positions = [
+            PortfolioSnapshotPosition(ticker=pos.ticker, quantity=pos.quantity)
+            for pos in portfolio.positions.values()
+            if pos.quantity != 0
+        ]
+
+        return snapshot

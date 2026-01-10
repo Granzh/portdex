@@ -19,13 +19,14 @@ def start_scheduler(
     snapshot_service,
     index_service,
     index_export_service,
+    google_sheets,
     snapshot_storage,
 ) -> None:
     """Starts the scheduler"""
 
     scheduler = BlockingScheduler()
 
-    tickers = index_service.resolve_tickers() or [
+    tickers = google_sheets.resolve_tickers() or [
         "SBER",
         "GAZP",
         "LKOH",
@@ -43,7 +44,7 @@ def start_scheduler(
     # candles
     job = scheduler.add_job(
         func=hourly_candle_update,
-        trigger=CronTrigger(minute=20),
+        trigger=CronTrigger(minute=5),
         kwargs={"backfill_service": backfill_service, "tickers": tickers},
         id="hourly_candle_update",
         replace_existing=True,
@@ -54,7 +55,7 @@ def start_scheduler(
     # portfolio snapshot
     job = scheduler.add_job(
         func=portfolio_snapshot_job,
-        trigger=CronTrigger(minute=21),
+        trigger=CronTrigger(minute=6),
         kwargs={"snapshot_service": snapshot_service},
         id="portfolio_snapshot",
         replace_existing=True,
@@ -65,7 +66,7 @@ def start_scheduler(
     # portfolio index
     job = scheduler.add_job(
         func=portfolio_index_job,
-        trigger=CronTrigger(minute=22),
+        trigger=CronTrigger(minute=7),
         kwargs={"index_service": index_service, "snapshot_storage": snapshot_storage},
         id="portfolio_index",
         replace_existing=True,
@@ -76,7 +77,7 @@ def start_scheduler(
     # portfolio index export
     job = scheduler.add_job(
         func=export_index_to_sheets_job,
-        trigger=CronTrigger(minute=23),
+        trigger=CronTrigger(minute=8),
         kwargs={"export_service": index_export_service},
         id="portfolio_index_export",
         replace_existing=True,

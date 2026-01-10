@@ -35,7 +35,7 @@ class PortfolioSnapshotStorage:
             .order_by(PortfolioSnapshot.datetime)
             .limit(1)
         )
-        return self.session.execute(stmt).scalar_one_or_none()
+        return self.session.execute(stmt).unique().scalar_one_or_none()
 
     def get_last(self) -> PortfolioSnapshot | None:
         """

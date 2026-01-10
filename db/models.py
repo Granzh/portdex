@@ -10,7 +10,7 @@ from sqlalchemy import (
     Integer,
     String,
 )
-from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import mapped_column, relationship
 from sqlalchemy.orm.base import Mapped
 
 from .base import Base
@@ -46,13 +46,28 @@ class Candle(Base):
     __table_args__ = (Index("ix_candles_ticker_datetime", "ticker", "datetime"),)
 
 
+class PortfolioSnapshotPosition(Base):
+    __tablename__ = "portfolio_snapshot_positions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    snapshot_datetime: Mapped[dt] = mapped_column(
+        DateTime, ForeignKey("portfolio_snapshots.datetime"), index=True
+    )
+    ticker: Mapped[str] = mapped_column(String, index=True)
+    quantity: Mapped[float] = mapped_column(Float)
+
+
 class PortfolioSnapshot(Base):
     """Portfolio snapshot data model"""
 
     __tablename__ = "portfolio_snapshots"
 
-    datetime = Column(DateTime, primary_key=True)
-    total_value = Column(Float)
+    datetime: Mapped[dt] = mapped_column(DateTime, primary_key=True)
+    total_value: Mapped[float] = mapped_column(Float)
+
+    positions: Mapped[list["PortfolioSnapshotPosition"]] = relationship(
+        backref="snapshot", cascade="all, delete-orphan", lazy="joined"
+    )
 
 
 class PortfolioIndex(Base):
