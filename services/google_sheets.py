@@ -34,7 +34,7 @@ class GoogleSheetsService:
         for row in rows:
             try:
                 date_str = str(row["date"])
-                trade_date = datetime.strptime(date_str, "%d.%m.%Y").date()
+                trade_date = datetime.strptime(date_str, "%d.%m.%Y")
                 operation = OperationType(str(row["operation"]).upper())
 
                 trades.append(

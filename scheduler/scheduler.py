@@ -18,6 +18,7 @@ def start_scheduler(
     backfill_service,
     snapshot_service,
     index_service,
+    index_storage,
     index_export_service,
     google_sheets,
     snapshot_storage,
@@ -67,7 +68,11 @@ def start_scheduler(
     job = scheduler.add_job(
         func=portfolio_index_job,
         trigger=CronTrigger(minute=7),
-        kwargs={"index_service": index_service, "snapshot_storage": snapshot_storage},
+        kwargs={
+            "index_service": index_service,
+            "snapshot_storage": snapshot_storage,
+            "index_storage": index_storage,
+        },
         id="portfolio_index",
         replace_existing=True,
         max_instances=1,

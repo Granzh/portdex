@@ -34,7 +34,7 @@ def sample_trade_buy():
     """Sample buy trade fixture"""
     return Trade(
         ticker="SBER",
-        date=date(2024, 1, 1),
+        date=datetime(2024, 1, 1),
         price=50.0,
         quantity=10,
         fee=5.0,
@@ -47,7 +47,7 @@ def sample_trade_sell():
     """Sample sell trade fixture"""
     return Trade(
         ticker="SBER",
-        date=date(2024, 1, 2),
+        date=datetime(2024, 1, 2),
         price=55.0,
         quantity=5,
         fee=3.0,

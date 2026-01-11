@@ -30,6 +30,13 @@ class PortfolioIndexStorage:
             .all()
         )
 
+    def get_last(self) -> PortfolioIndex | None:
+        return (
+            self.session.query(PortfolioIndex)
+            .order_by(PortfolioIndex.datetime.desc())
+            .first()
+        )
+
     def delete_all(self):
         self.session.query(PortfolioIndex).delete()
         self.session.commit()

@@ -11,9 +11,11 @@ class IndexStorage:
     def __init__(self, session: Session):
         self.session = session
 
-    def save_point(self, datetime, value: float) -> None:
+    def save_point(self, datetime, value: float, divisor: float) -> None:
         """
         Saves a portfolio index point.
         """
-        self.session.merge(PortfolioIndex(datetime=datetime, index_value=value))
+        self.session.merge(
+            PortfolioIndex(datetime=datetime, index_value=value, divisor=divisor)
+        )
         self.session.commit()

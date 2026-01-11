@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -43,6 +45,17 @@ class PortfolioSnapshotStorage:
         """
         return (
             self.session.query(PortfolioSnapshot)
+            .order_by(PortfolioSnapshot.datetime.desc())
+            .first()
+        )
+
+    def get_last_before(self, at: datetime) -> PortfolioSnapshot | None:
+        """
+        Retrieves the last portfolio snapshot before a given datetime.
+        """
+        return (
+            self.session.query(PortfolioSnapshot)
+            .filter(PortfolioSnapshot.datetime < at)
             .order_by(PortfolioSnapshot.datetime.desc())
             .first()
         )

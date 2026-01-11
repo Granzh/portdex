@@ -21,8 +21,9 @@ class TestIndexStorage:
 
         test_datetime = datetime(2024, 1, 1, 12, 0)
         test_value = 1000.5
+        test_divisor = 1.0
 
-        storage.save_point(test_datetime, test_value)
+        storage.save_point(test_datetime, test_value, test_divisor)
 
         mock_session.merge.assert_called_once()
         mock_session.commit.assert_called_once()
@@ -31,19 +32,20 @@ class TestIndexStorage:
         merge_call_args = mock_session.merge.call_args[0][0]
         assert merge_call_args.datetime == test_datetime
         assert merge_call_args.index_value == test_value
+        assert merge_call_args.divisor == test_divisor
 
     def test_save_point_multiple_calls(self, mock_session):
         """Test multiple save_point calls"""
         storage = IndexStorage(mock_session)
 
         points = [
-            (datetime(2024, 1, 1, 12, 0), 1000.0),
-            (datetime(2024, 1, 2, 12, 0), 1050.5),
-            (datetime(2024, 1, 3, 12, 0), 1025.25),
+            (datetime(2024, 1, 1, 12, 0), 1000.0, 1.0),
+            (datetime(2024, 1, 2, 12, 0), 1050.5, 1.1),
+            (datetime(2024, 1, 3, 12, 0), 1025.25, 1.2),
         ]
 
-        for dt, value in points:
-            storage.save_point(dt, value)
+        for dt, value, divisor in points:
+            storage.save_point(dt, value, divisor)
 
         assert mock_session.merge.call_count == 3
         assert mock_session.commit.call_count == 3
@@ -53,8 +55,9 @@ class TestIndexStorage:
         storage = IndexStorage(mock_session)
 
         test_datetime = datetime(2024, 1, 1, 12, 0)
+        test_divisor = 1.0
 
-        storage.save_point(test_datetime, 0.0)
+        storage.save_point(test_datetime, 0.0, test_divisor)
 
         mock_session.merge.assert_called_once()
         mock_session.commit.assert_called_once()
@@ -67,8 +70,9 @@ class TestIndexStorage:
         storage = IndexStorage(mock_session)
 
         test_datetime = datetime(2024, 1, 1, 12, 0)
+        test_divisor = 1.0
 
-        storage.save_point(test_datetime, -100.0)
+        storage.save_point(test_datetime, -100.0, test_divisor)
 
         mock_session.merge.assert_called_once()
         mock_session.commit.assert_called_once()
@@ -81,8 +85,9 @@ class TestIndexStorage:
         storage = IndexStorage(mock_session)
 
         test_datetime = datetime(2024, 1, 1, 12, 0)
+        test_divisor = 1.0
 
-        storage.save_point(test_datetime, 1234.56789)
+        storage.save_point(test_datetime, 1234.56789, test_divisor)
 
         mock_session.merge.assert_called_once()
         mock_session.commit.assert_called_once()
@@ -103,7 +108,7 @@ class TestIndexStorage:
             mock_session = Mock()
             storage = IndexStorage(mock_session)
 
-            storage.save_point(test_datetime, 1000.0)
+            storage.save_point(test_datetime, 1000.0, 1.0)
 
             merge_call_args = mock_session.merge.call_args[0][0]
             mock_session.merge.assert_called_once()
@@ -115,8 +120,9 @@ class TestIndexStorage:
 
         test_datetime = datetime(2024, 1, 1, 12, 0)
         large_value = 999999999.99
+        test_divisor = 1.0
 
-        storage.save_point(test_datetime, large_value)
+        storage.save_point(test_datetime, large_value, test_divisor)
 
         mock_session.merge.assert_called_once()
         mock_session.commit.assert_called_once()
@@ -130,8 +136,9 @@ class TestIndexStorage:
 
         test_datetime = datetime(2024, 1, 1, 12, 0, 0)
         test_value = 1000.0
+        test_divisor = 1.0
 
-        storage.save_point(test_datetime, test_value)
+        storage.save_point(test_datetime, test_value, test_divisor)
 
         # Verify merge was called with PortfolioIndex instance
         merge_call = mock_session.merge.call_args
@@ -140,6 +147,7 @@ class TestIndexStorage:
         portfolio_index = merge_call[0][0]
         assert hasattr(portfolio_index, "datetime")
         assert hasattr(portfolio_index, "index_value")
+        assert hasattr(portfolio_index, "divisor")
 
     def test_save_point_type_assertion(self, mock_session):
         """Test that saved object has correct attributes"""
@@ -147,8 +155,9 @@ class TestIndexStorage:
 
         test_datetime = datetime(2024, 1, 1, 12, 0)
         test_value = 1000.0
+        test_divisor = 1.0
 
-        storage.save_point(test_datetime, test_value)
+        storage.save_point(test_datetime, test_value, test_divisor)
 
         # Get the merged object
         merged_object = mock_session.merge.call_args[0][0]
@@ -159,5 +168,7 @@ class TestIndexStorage:
         # Verify attributes exist and are correct type
         assert hasattr(merged_object, "datetime")
         assert hasattr(merged_object, "index_value")
+        assert hasattr(merged_object, "divisor")
         assert isinstance(merged_object.datetime, datetime)
         assert isinstance(merged_object.index_value, float)
+        assert isinstance(merged_object.divisor, float)

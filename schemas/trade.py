@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime
 from enum import Enum
 
 from pydantic import BaseModel
@@ -11,7 +11,7 @@ class OperationType(str, Enum):
 
 class Trade(BaseModel):
     ticker: str
-    date: date
+    date: datetime
     price: float
     quantity: int
     fee: float = 0.0

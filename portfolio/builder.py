@@ -3,7 +3,7 @@ from datetime import datetime
 
 from db.models import PortfolioSnapshot, PortfolioSnapshotPosition
 from portfolio.portfolio import Portfolio
-from schemas.trade import Trade
+from schemas.trade import OperationType, Trade
 from storage.candle_storage import CandleStorage
 
 logger = logging.getLogger(__name__)
@@ -49,17 +49,52 @@ class PortfolioBuilder:
 
         return total
 
-    def snapshot(self, trades: list[Trade], at: datetime) -> PortfolioSnapshot:
+    def snapshot(
+        self,
+        trades: list[Trade],
+        at: datetime,
+        prev_at: datetime | None,
+    ) -> PortfolioSnapshot:
         """
         Builds a portfolio from a list of trades and calculates its value at a given time.
+        cash_flow — приток/отток капитала ЗА ПЕРИОД (prev_at, at]
         """
-        portfolio = self.build(trades, at)
-        value = self.valuate(portfolio, at)
+        portfolio = Portfolio()
+        cash_flow = 0.0
 
-        snapshot = PortfolioSnapshot(datetime=at, total_value=value)
+        for trade in sorted(trades, key=lambda t: t.date):
+            trade_at = trade.date.replace(tzinfo=at.tzinfo)
+            if trade_at > at:
+                break
+
+            portfolio.apply_trade(trade)
+
+            if prev_at is not None and prev_at < trade.date <= at:
+                candle = self.candle_storage.get_last_before(
+                    ticker=trade.ticker, at=trade_at
+                )
+
+                if candle is None:
+                    logger.warning("No candle for %s at %s", trade.ticker, trade_at)
+                    continue
+
+                sign = 1 if trade.operation == OperationType.BUY else -1
+                cash_flow += sign * candle.close * trade.quantity
+                cash_flow += trade.fee
+
+        total_value = self.valuate(portfolio, at)
+
+        snapshot = PortfolioSnapshot(
+            datetime=at,
+            total_value=total_value,
+            cash_flow=cash_flow,
+        )
 
         snapshot.positions = [
-            PortfolioSnapshotPosition(ticker=pos.ticker, quantity=pos.quantity)
+            PortfolioSnapshotPosition(
+                ticker=pos.ticker,
+                quantity=pos.quantity,
+            )
             for pos in portfolio.positions.values()
             if pos.quantity != 0
         ]

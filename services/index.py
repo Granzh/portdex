@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime
+from decimal import DivisionByZero
 
 from db.models import PortfolioIndex, PortfolioSnapshot
 from storage.candle_storage import CandleStorage
@@ -24,47 +25,31 @@ class IndexService:
         self.candle_storage = candle_storage
         self.base = base
 
-    def _get_base_snapshot(self):
-        """Fetches the first portfolio snapshot"""
+    def calculate(
+        self,
+        snapshot: PortfolioSnapshot,
+        prev_index: PortfolioIndex,
+    ):
+        market_cap = snapshot.total_value
 
-        return self.snapshot_storage.get_first()
+        if market_cap == 0:
+            return prev_index.index_value, prev_index.divisor
 
-    def _valuate_positions(self, positions, at: datetime) -> float:
-        total = 0.0
-
-        for pos in positions:
-            candle = self.candle_storage.get_last_before(ticker=pos.ticker, at=at)
-            if candle is None:
-                logger.error("No candle found for ticker %s at %s", pos.ticker, at)
-                continue
-            total += pos.quantity * candle.close
-
-        return total
-
-    def calculate_and_save(self, snapshot):
-        """Calculates and saves the portfolio index"""
-        logger.info("Calculating index for snapshot at %s", snapshot.datetime)
-
-        base_snapshot = self._get_base_snapshot()
-
-        if base_snapshot is None:
-            logger.info("Initializing base index")
-            index_value = self.base
+        prev_index_value = prev_index.index_value
+        prev_divisor = prev_index.divisor
+        if snapshot.cash_flow != 0:
+            divisor = (market_cap - snapshot.cash_flow) / prev_index_value
         else:
-            index_value = self.calculate(snapshot, base_snapshot)
-        index = PortfolioIndex(datetime=snapshot.datetime, index_value=index_value)
+            divisor = prev_divisor
+        index_value = market_cap / divisor
 
-        return self.index_storage.save(index)
+        return index_value, divisor
 
-    def calculate(self, snapshot: PortfolioSnapshot, base_snapshot: PortfolioSnapshot):
-        base_value_now = self._valuate_positions(
-            base_snapshot.positions, snapshot.datetime
+    def save_from_snapshot(self, snapshot, index_value: float, divisor: float):
+        index = PortfolioIndex(
+            datetime=snapshot.datetime,
+            index_value=index_value,
+            divisor=divisor,
         )
-        if base_snapshot.total_value == 0:
-            raise ValueError("Base snapshot total value cannot be zero")
-        return (base_value_now / base_snapshot.total_value) * self.base
-
-    def save(self, snapshot, index_value):
-        index = PortfolioIndex(datetime=snapshot.datetime, index_value=index_value)
 
         return self.index_storage.save(index)

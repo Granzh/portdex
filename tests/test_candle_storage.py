@@ -30,7 +30,7 @@ class TestCandleStorage:
         """Test upserting single candle"""
         storage = CandleStorage(mock_session)
 
-        candle_dto = CandleDTO(
+        candle = Candle(
             ticker="SBER",
             datetime=datetime(2024, 1, 1, 10, 0),
             open=50.0,
@@ -45,7 +45,7 @@ class TestCandleStorage:
         mock_result.rowcount = 1
         mock_session.execute.return_value = mock_result
 
-        result = storage.upsert_many([candle_dto])
+        result = storage.upsert_many([candle])
 
         assert result == 1
         mock_session.execute.assert_called_once()
@@ -55,8 +55,8 @@ class TestCandleStorage:
         """Test upserting multiple candles"""
         storage = CandleStorage(mock_session)
 
-        candle_dtos = [
-            CandleDTO(
+        candles = [
+            Candle(
                 ticker="SBER",
                 datetime=datetime(2024, 1, 1, 10, 0),
                 open=50.0,
@@ -66,7 +66,7 @@ class TestCandleStorage:
                 volume=1000,
                 interval=60,
             ),
-            CandleDTO(
+            Candle(
                 ticker="GAZP",
                 datetime=datetime(2024, 1, 1, 10, 0),
                 open=150.0,
@@ -82,7 +82,7 @@ class TestCandleStorage:
         mock_result.rowcount = 2
         mock_session.execute.return_value = mock_result
 
-        result = storage.upsert_many(candle_dtos)
+        result = storage.upsert_many(candles)
 
         assert result == 2
         mock_session.execute.assert_called_once()
@@ -92,7 +92,7 @@ class TestCandleStorage:
         """Test upsert when no rows are inserted"""
         storage = CandleStorage(mock_session)
 
-        candle_dto = CandleDTO(
+        candle = Candle(
             ticker="SBER",
             datetime=datetime(2024, 1, 1, 10, 0),
             open=50.0,
@@ -107,7 +107,7 @@ class TestCandleStorage:
         mock_result.rowcount = 0
         mock_session.execute.return_value = mock_result
 
-        result = storage.upsert_many([candle_dto])
+        result = storage.upsert_many([candle])
 
         assert result == 0
 
@@ -115,7 +115,7 @@ class TestCandleStorage:
         """Test upsert when rowcount is None"""
         storage = CandleStorage(mock_session)
 
-        candle_dto = CandleDTO(
+        candle = Candle(
             ticker="SBER",
             datetime=datetime(2024, 1, 1, 10, 0),
             open=50.0,
@@ -130,7 +130,7 @@ class TestCandleStorage:
         mock_result.rowcount = None
         mock_session.execute.return_value = mock_result
 
-        result = storage.upsert_many([candle_dto])
+        result = storage.upsert_many([candle])
 
         assert result == 0
 

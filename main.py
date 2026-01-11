@@ -86,6 +86,7 @@ def main():
         snapshot_storage=snapshot_storage,
         index_export_service=index_export_service,
         index_service=index_service,
+        index_storage=index_storage,
     )
 
 

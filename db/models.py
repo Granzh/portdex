@@ -2,6 +2,7 @@ from datetime import datetime as dt
 
 from sqlalchemy import (
     BigInteger,
+    Boolean,
     Column,
     DateTime,
     Float,
@@ -64,6 +65,7 @@ class PortfolioSnapshot(Base):
 
     datetime: Mapped[dt] = mapped_column(DateTime, primary_key=True)
     total_value: Mapped[float] = mapped_column(Float)
+    cash_flow: Mapped[float] = mapped_column(Float, default=0.0)
 
     positions: Mapped[list["PortfolioSnapshotPosition"]] = relationship(
         backref="snapshot", cascade="all, delete-orphan", lazy="joined"
@@ -77,3 +79,4 @@ class PortfolioIndex(Base):
 
     datetime: Mapped[dt] = mapped_column(DateTime, primary_key=True)
     index_value: Mapped[float] = mapped_column(Float)
+    divisor: Mapped[float] = mapped_column(Float)

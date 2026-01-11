@@ -36,7 +36,8 @@ def backfill_index(
 
     snapshot_storage = PortfolioSnapshotStorage(session)
     index_storage = PortfolioIndexStorage(session)
-    index_service = IndexService(snapshot_storage, index_storage)
+    candle_storage = CandleStorage(session)
+    index_service = IndexService(snapshot_storage, index_storage, candle_storage)
     backfill_service = IndexBackfillService(
         snapshot_storage=snapshot_storage,
         index_service=index_service,
