@@ -9,4 +9,6 @@ license = "Apache-2.0"
 [workspace]
 members = [
     "xtask",
+    ".",
+    "crates/core",
 ]
