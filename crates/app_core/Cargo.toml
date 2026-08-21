@@ -1,5 +1,5 @@
 [package]
-name = "core"
+name = "app_core"
 version = "0.1.0"
 edition = "2024"
 publish = false
@@ -8,3 +8,4 @@ publish = false
 chrono = { version = "0.4.45", features = ["serde"] }
 rust_decimal = "1.42.1"
 serde = { version = "1.0.229", features = ["derive"] }
+thiserror = "2.0.20"

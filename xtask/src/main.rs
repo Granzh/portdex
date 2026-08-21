@@ -45,9 +45,10 @@ fn run_lints() -> Result<(), Box<dyn std::error::Error>> {
             "clippy",
             "--workspace",
             "--all-targets",
-            "--all-feateures",
+            "--all-features",
             "--",
-            "-D warnings",
+            "-D",
+            "warnings",
         ])
         .status()?;
 

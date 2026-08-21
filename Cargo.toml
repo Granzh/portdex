@@ -10,5 +10,5 @@ license = "Apache-2.0"
 members = [
     "xtask",
     ".",
-    "crates/core",
+    "crates/app_core",
 ]
