@@ -33,9 +33,12 @@ pub trait DatabaseInterface {
 
     fn add_price(&self, price: &Price) -> Result<(), DbError>;
 
-    fn read_prices(&self, ticker: &str, date_range: Option<(NaiveDate, NaiveDate)>) -> Result<Vec<Price>, DbError>;
+    fn read_prices(
+        &self,
+        ticker: &str,
+        date_range: Option<(NaiveDate, NaiveDate)>,
+    ) -> Result<Vec<Price>, DbError>;
 }
-
 
 pub trait UserStockDateLoader {
     fn read_current(&self) -> Result<Vec<Operation>, LoaderError>;

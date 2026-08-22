@@ -1,26 +1,40 @@
-use crate::{domain::Operation, error::DbError, traits::{DatabaseInterface, ImportBatchId}};
+use crate::{
+    domain::Operation,
+    error::DbError,
+    traits::{DatabaseInterface, ImportBatchId},
+};
 
+use crate::domain::RowHash;
 use std::collections::HashMap;
-use crate::domain::{RowHash};
 
 #[derive(Debug)]
 pub enum ReconcileOutcome {
     /// hashes of file and active batch are same, nothing to do
     NoChange,
-    Appended {batch: ImportBatchId, add: usize},
-    FullReimport{ batch: ImportBatchId, total: usize},
+    Appended {
+        batch: ImportBatchId,
+        add: usize,
+    },
+    FullReimport {
+        batch: ImportBatchId,
+        total: usize,
+    },
 }
 
 pub struct ImportReconciler<'a, D: DatabaseInterface> {
     db: &'a D,
 }
 
-impl <'a, D:DatabaseInterface> ImportReconciler<'a, D> {
+impl<'a, D: DatabaseInterface> ImportReconciler<'a, D> {
     pub fn new(db: &'a D) -> Self {
-        Self {db}
+        Self { db }
     }
 
-    pub fn reconcile(&self, source_id: &str, current: Vec<Operation>,) -> Result<ReconcileOutcome, DbError> {
+    pub fn reconcile(
+        &self,
+        source_id: &str,
+        current: Vec<Operation>,
+    ) -> Result<ReconcileOutcome, DbError> {
         let active_batch = self.db.active_batch_id(source_id)?;
 
         let old_hashes = match active_batch {
@@ -36,12 +50,17 @@ impl <'a, D:DatabaseInterface> ImportReconciler<'a, D> {
         let new_counts = count_hashes(current.iter().map(Operation::content_hash));
 
         let needs_full_reimport = active_batch.is_none()
-            || old_counts.iter().any(|(h, &old_c)| new_counts.get(h).copied().unwrap_or(0) < old_c);
+            || old_counts
+                .iter()
+                .any(|(h, &old_c)| new_counts.get(h).copied().unwrap_or(0) < old_c);
 
         if needs_full_reimport {
             let batch = self.db.create_import_batch(source_id)?;
             self.db.add_operations(batch, &current)?;
-            return Ok(ReconcileOutcome::FullReimport { batch, total: current.len() });
+            return Ok(ReconcileOutcome::FullReimport {
+                batch,
+                total: current.len(),
+            });
         }
 
         let batch = active_batch.expect("needs_full_reimport else true");
@@ -64,7 +83,10 @@ impl <'a, D:DatabaseInterface> ImportReconciler<'a, D> {
         }
 
         self.db.add_operations(batch, &to_add)?;
-        Ok(ReconcileOutcome::Appended { batch, add: to_add.len() })
+        Ok(ReconcileOutcome::Appended {
+            batch,
+            add: to_add.len(),
+        })
     }
 }
 

@@ -16,7 +16,7 @@ pub enum LoaderError {
 }
 
 #[derive(Debug, Error)]
-pub enum DbError  {
+pub enum DbError {
     #[error("connection error: {0}")]
     Connection(String),
     #[error("query failed: {0}")]
@@ -35,18 +35,6 @@ pub enum ExchangeError {
     NoPriceForDate { ticker: String, date: String },
     #[error("date is in the future")]
     FutureDate,
-}
-
-#[derive(Debug, Error)]
-pub enum LoaderError {
-    #[error("failed to parse source: {0}")]
-    ParseError(String),
-    #[error("column '{0}' not found — check column mapping in config")]
-    MissingColumn(String),
-    #[error("unsupported date format: {0}")]
-    BadDateFormat(String),
-    #[error("source unavailable: {0}")]
-    SourceUnavailable(String),
 }
 
 #[derive(Debug, Error)]
