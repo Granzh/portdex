@@ -16,6 +16,31 @@ pub enum OperationType {
     Dividend,
 }
 
+impl OperationType {
+    fn as_str(self) -> &'static str {
+        match self {
+            OperationType::Buy => "buy",
+            OperationType::Sell => "sell",
+            OperationType::Dividend => "fee",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct RowHash(pub [u8; 32]);
+
+impl std::fmt::Display for RowHash {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", hex_encode(&self.0))
+    }
+}
+
+fn hex_encode(bytes: &[u8]) -> String {
+    bytes.iter().map(|b| format!("{b:02x}")).collect()
+}
+
+/// Normalized row from user's table
+/// Column mapping and parsing on UserStocksDataLoader level
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Operation {
     pub ticker: String,
@@ -26,6 +51,22 @@ pub struct Operation {
     pub date: NaiveDate,
 }
 
+impl Operation {
+    pub fn content_hash(&self) -> RowHash {
+        let canonical = format!(
+            "{}|{}|{}|{}|{}|{}",
+            self.ticker,
+            self.op_type.as_str(),
+            self.price.normalize(),
+            self.quantity.normalize(),
+            self.fee.normalize(),
+            self.date,
+        );
+        RowHash(*blake3::hash(canonical.as_bytes()).as_bytes())
+    }
+}
+
+/// Stock price on a concrete date
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Price {
     pub ticker: String,
@@ -33,6 +74,7 @@ pub struct Price {
     pub close: Money,
 }
 
+/// Position on snapshot date
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Position {
     pub ticker: String,
@@ -52,6 +94,7 @@ impl Position {
     }
 }
 
+/// Portfolio snapshot as of a concrete date
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PortfolioSnapshot {
     pub date: NaiveDate,
