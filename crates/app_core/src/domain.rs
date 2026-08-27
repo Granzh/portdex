@@ -13,7 +13,6 @@ pub type Money = Decimal;
 pub enum OperationType {
     Buy,
     Sell,
-    Dividend,
 }
 
 impl OperationType {
@@ -21,7 +20,6 @@ impl OperationType {
         match self {
             OperationType::Buy => "buy",
             OperationType::Sell => "sell",
-            OperationType::Dividend => "fee",
         }
     }
 }
