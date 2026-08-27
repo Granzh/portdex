@@ -57,6 +57,8 @@ fn run_lints() -> Result<(), Box<dyn std::error::Error>> {
         return Err("clippy failed".into());
     }
 
+    println!("Pass!");
+
     Ok(())
 }
 
