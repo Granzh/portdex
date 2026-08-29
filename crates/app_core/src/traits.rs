@@ -25,7 +25,7 @@ pub trait DatabaseInterface {
 
     fn add_operations(&self, batch: ImportBatchId, ops: &[Operation]) -> Result<(), DbError>;
 
-    fn read_operation(
+    fn read_operations(
         &self,
         ticker: Option<&str>,
         date_range: Option<(NaiveDate, NaiveDate)>,
