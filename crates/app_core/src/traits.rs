@@ -40,7 +40,7 @@ pub trait DatabaseInterface {
     ) -> Result<Vec<Price>, DbError>;
 }
 
-pub trait UserStockDateLoader {
+pub trait UserStocksDataLoader {
     fn read_current(&self) -> Result<Vec<Operation>, LoaderError>;
 }
 

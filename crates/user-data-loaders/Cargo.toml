@@ -1,0 +1,9 @@
+[package]
+name = "portfolio-user-data-loaders"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+calamine = "0.26"
+app_core = { path = "../app_core" }
+rust_decimal = "1.42.1"

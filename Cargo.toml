@@ -11,4 +11,5 @@ members = [
     "xtask",
     ".",
     "crates/app_core",
+    "crates/user-data-loaders"
 ]
